@@ -50,15 +50,21 @@ export type KPI = {
 
 export type Segment = {
   name: string;
-  revenue: string;
+  revenue: number;
   variation: number;
-  conversion: string;
+  conversionRate: number;
   status: "En baisse" | "Stable" | "En hausse" | "À surveiller";
+};
+
+export type SegmentDef = {
+  name: string;
+  todayShare: number;
+  avgShare: number;
+  conversionOffset: number;
 };
 
 export type DataSource = {
   name: string;
-  icon: string;
   status: "Connecté" | "À configurer" | "Synchronisation récente";
   lastSync: string;
 };

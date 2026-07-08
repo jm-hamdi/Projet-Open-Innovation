@@ -1,60 +1,55 @@
 "use client";
 
+import { CreditCard, ShoppingCart, Users, Target, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { KPI } from "@/types";
+import { formatPercent } from "@/lib/format";
+import Badge from "@/components/Badge";
+import type { BadgeVariant } from "@/components/Badge";
 
-const statusConfig = {
-  stable: {
-    badge: "bg-gray-100 text-gray-600",
-    label: "Stable",
-    trend: "text-gray-500",
-    border: "border-gray-200",
-    icon: "→",
-  },
-  hausse: {
-    badge: "bg-green-100 text-green-700",
-    label: "En hausse",
-    trend: "text-green-600",
-    border: "border-green-200",
-    icon: "↑",
-  },
-  baisse: {
-    badge: "bg-orange-100 text-orange-700",
-    label: "En baisse",
-    trend: "text-orange-600",
-    border: "border-orange-200",
-    icon: "↓",
-  },
-  alerte: {
-    badge: "bg-red-100 text-red-700",
-    label: "Alerte",
-    trend: "text-red-600",
-    border: "border-red-200",
-    icon: "↓",
-  },
+const statusConfig: Record<
+  KPI["status"],
+  { variant: BadgeVariant; label: string; trendColor: string; Icon: typeof TrendingUp | typeof TrendingDown | typeof Minus }
+> = {
+  stable: { variant: "neutral",  label: "Stable",    trendColor: "text-slate-500", Icon: Minus },
+  hausse: { variant: "success",  label: "En hausse", trendColor: "text-emerald-600", Icon: TrendingUp },
+  baisse: { variant: "warning",  label: "En baisse", trendColor: "text-amber-600", Icon: TrendingDown },
+  alerte: { variant: "danger",   label: "Alerte",    trendColor: "text-red-600", Icon: TrendingDown },
+};
+
+const kpiIcons: Record<string, typeof CreditCard> = {
+  "Chiffre d'affaires": CreditCard,
+  "Commandes": ShoppingCart,
+  "Visiteurs": Users,
+  "Taux de conversion": Target,
+  "Panier moyen": TrendingUp,
 };
 
 type Props = { kpi: KPI };
 
 export default function KPICard({ kpi }: Props) {
   const config = statusConfig[kpi.status];
-  const sign = kpi.change > 0 ? "+" : "";
+  const KpiIcon = kpiIcons[kpi.label] ?? CreditCard;
 
   return (
-    <div className={`bg-white rounded-xl border ${config.border} p-5 shadow-sm hover:shadow-md transition-shadow`}>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 hover:border-slate-300 hover:shadow-md transition-all cursor-default">
       <div className="flex items-start justify-between mb-3">
-        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">{kpi.label}</span>
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${config.badge}`}>
-          {config.label}
-        </span>
+        <div className="flex items-center gap-2">
+          <KpiIcon size={15} strokeWidth={1.75} className="text-slate-400 shrink-0" />
+          <span className="text-xs font-medium text-slate-500">{kpi.label}</span>
+        </div>
+        <Badge variant={config.variant}>{config.label}</Badge>
       </div>
+
       <div className="mb-2">
-        <span className="text-2xl font-bold text-gray-900">{kpi.value}</span>
+        <span className="text-2xl font-bold text-slate-900 tabular-nums">{kpi.value}</span>
       </div>
-      <div className="flex items-center gap-2">
-        <span className={`text-sm font-semibold ${config.trend}`}>
-          {config.icon} {sign}{kpi.change.toFixed(1)} %
+
+      <div className="flex items-center gap-1.5">
+        <config.Icon size={13} strokeWidth={2} className={config.trendColor} />
+        <span className={`text-sm font-semibold tabular-nums ${config.trendColor}`}>
+          {formatPercent(kpi.change)}
         </span>
-        <span className="text-xs text-gray-400">vs moy. {kpi.previousAverage}</span>
+        <span className="text-xs text-slate-400">vs moy. {kpi.previousAverage}</span>
       </div>
     </div>
   );
